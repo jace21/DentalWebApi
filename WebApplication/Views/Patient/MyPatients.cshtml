@@ -1,0 +1,40 @@
+﻿@model WebApplication.Models.PatientListModel
+@{
+  ViewBag.Title = "My Patients";
+}
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' type='text/css' href='~/Content/card.css'>
+  <link rel='stylesheet' type='text/css' href='~/Content/sidenav.css'>
+</head>
+
+<div class="sidenav">
+  @Html.ActionLink("Schedule", "Index", "Doctor", routeValues: new { id = Model.DoctorId }, htmlAttributes: null)
+  @Html.ActionLink("My Patients", "MyPatients", "Patient", routeValues: new { id = Model.DoctorId }, htmlAttributes: null)
+  @Html.ActionLink("Register Patient", "Index", "Patient", routeValues: new { id = Model.DoctorId }, htmlAttributes: null)
+</div>
+
+<body class="main">
+  <div class="row">
+    @for (int i = 0; i < Model.Patients.Count; i++)
+    {
+      <div class="column">
+        <div class="card">
+          <img src="@Url.Content(Model.Patients[i].Profile)" />
+          <div>
+            <label>Name:</label><span>
+              @Html.DisplayFor(x => Model.Patients[i].Name)
+            </span><br>
+            <label>Date of Birth:</label><span>
+              @Html.DisplayFor(x => Model.Patients[i].Birthday)
+            </span><br>
+            <label>Address:</label><span>
+              @Html.DisplayFor(x => Model.Patients[i].AddressString)
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</body>

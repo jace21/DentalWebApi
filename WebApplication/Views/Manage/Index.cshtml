@@ -1,0 +1,39 @@
+﻿@model WebApplication.Models.IndexViewModel
+@{
+   ViewBag.Title = "Manage your account settings";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<p class="text-success">@ViewBag.StatusMessage</p>
+
+<div>
+   <hr />
+   <dl class="dl-horizontal">
+
+      <dt>Password:</dt>
+      <dd>
+        ******
+        @if (Model.HasPassword)
+        {
+          @Html.ActionLink("Change your password", "ChangePassword")
+        }
+      </dd>
+
+      <dt>Phone Number:</dt>
+      <dd>
+         @(Model.PhoneNumber ?? "None")
+         @if (Model.PhoneNumber != null)
+         {
+            @Html.ActionLink("Change", "AddPhoneNumber")
+            @: &nbsp;|&nbsp;
+            @Html.ActionLink("Remove", "RemovePhoneNumber")
+         }
+         else
+         {
+            @Html.ActionLink("Add", "AddPhoneNumber")
+         }
+         
+      </dd>
+   </dl>
+</div>

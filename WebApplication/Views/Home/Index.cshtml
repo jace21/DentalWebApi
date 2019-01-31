@@ -1,0 +1,34 @@
+﻿@using Microsoft.AspNet.Identity
+@section scripts {
+  @Scripts.Render("~/bundles/app")
+}
+
+@if (Request.IsAuthenticated)
+{
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' type='text/css' href='~/Content/card.css'>
+  </head>
+
+  <body>
+    <div class="row">
+      <ul class="list-unstyled" data-bind="foreach: dentists">
+        <li>
+          <div class="column">
+            <div class="card">
+              <a data-bind="attr: { 'href': '@Url.Action("Index", "Doctor")?id=' + Id}">
+                <img alt="" data-bind="attr: { src: 'data:image/png;base64,' + Profile }" />
+                <div>
+                  <label>Name:</label>
+                  <span style="font-size:16px" data-bind="text: Name"></span>
+                </div>
+                <label>Date of Birth:</label>
+                <span data-bind="text: formatDate(Birthday)"></span>
+              </a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </body>
+}

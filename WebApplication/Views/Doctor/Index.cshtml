@@ -1,0 +1,430 @@
+﻿@using WebApplication.Models
+@model DoctorViewModel
+@{
+  ViewBag.Title = "Doctor's Appointments";
+}
+
+@section scripts {
+  <script type="text/javascript" src="~/Scripts/moment.min.js"></script>
+  <script type="text/javascript" src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+
+  <script type="text/javascript">
+    function formatDate(odate) {
+      var date = new Date(odate);
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var hr = date.getHours();
+      var min = date.getMinutes();
+      if (min < 10) {
+        min = "0" + min;
+      }
+      var ampm = "am";
+      if (hr > 12) {
+        hr -= 12;
+        ampm = "pm";
+      }
+      var options = { month: 'long' };
+      var fullMonth = new Intl.DateTimeFormat('en-US', options).format(date);
+      var day = date.getDate();
+      date = fullMonth + ' ' + day + ', ' + year + ' ' + hr + ':' + min + ampm;
+      return date;
+    }
+
+    $(document).ready(function () {
+      var selectedEvent = null;
+      GenerateCalender();
+
+      $('#btnEdit').click(function () {
+        //Open modal dialog for edit event
+        openEditForm();
+      })
+
+      $('#dtp1, #dtp2, #dtp3, #dtp4').datetimepicker({
+        format: 'MMMM DD, YYYY HH:mm A'
+      });
+
+      $('#btnSave').click(function () {
+        if ($('#txtStart').val().trim() == "") {
+          alert('Start date required');
+          return;
+        }
+        else {
+          var startDate = moment($('#txtStart').val(), "MMMM DD, YYYY HH:mm A").toDate();
+          var endDate = moment($('#txtEnd').val(), "MMMM DD, YYYY HH:mm A").toDate();
+          if (startDate > endDate) {
+            alert('Invalid end date');
+            return;
+          }
+        }
+
+        var data = {
+          id: $('#hdEventID').val(),
+          title: $('#txtSubject').val(),
+          description: $('#txtDescription').val(),
+          start: $('#txtStart').val().trim(),
+          end: $('#txtEnd').val().trim(),
+        }
+        SaveReloadEvent(data);
+        // call function for submit data to the server
+      })
+
+      $('#btnAdd').click(function () {
+        if ($('#txtAddStart').val().trim() == "") {
+          alert('Start date required');
+          return;
+        }
+        else {
+          var startDate = moment($('#txtAddStart').val(), "MMMM DD, YYYY HH:mm A").toDate();
+          var endDate = moment($('#txtAddEnd').val(), "MMMM DD, YYYY HH:mm A").toDate();
+          if (startDate > endDate) {
+            alert('Invalid end date');
+            return;
+          }
+        }
+        var doctorId = "@Model.Id";
+
+        var data = {
+          id: $('#AddEventID').val(),
+          title: $('#txtAddSubject').val(),
+          description: $('#txtAddDescription').val(),
+          patientId: $('#txtAddPatientName').val(),
+          start: $('#txtAddStart').val().trim(),
+          end: $('#txtAddEnd').val().trim(),
+          doctorId: doctorId
+        }
+        SaveReloadEvent(data);
+        // call function for submit data to the server
+      })
+
+      $('#btnDelete').click(function () {
+        if (selectedEvent != null && confirm('Are you sure?')) {
+          $.ajax({
+            type: "POST",
+            url: '/Calendar/DeleteEvent',
+            data: { 'id': selectedEvent.id },
+            success: function (data) {
+              if (data.status) {
+                $('#calendarModal').modal('hide');
+                location.reload();
+              }
+              else
+              {
+                alert('Failed to Delete event')
+              }
+            },
+            error: function () {
+              alert('Failed');
+            }
+          })
+        }
+      })
+
+      function SaveEvent(data) {
+        $.ajax({
+          type: "POST",
+          url: '/Calendar/SaveEvent',
+          data: data,
+          success: function (data) {
+            if (data.status) {
+              //Refresh the calender
+              GenerateCalender();
+              $('#calendarModal').modal('hide');
+              $('#myModalSave').modal('hide');
+            }
+          },
+          error: function () {
+            alert('Failed');
+          }
+        })
+      }
+
+      function SaveReloadEvent(data) {
+        $.ajax({
+          type: "POST",
+          url: '/Calendar/SaveEvent',
+          data: data,
+          success: function (data) {
+            if (data.status) {
+              $('#myModalSave').modal('hide');
+              location.reload();
+            }
+          },
+          error: function () {
+            alert('Failed');
+          }
+        })
+      }
+
+      function openAddForm() {
+        if (selectedEvent != null) {
+          $('#AddEventID').val(selectedEvent.id);
+          $('#txtAddSubject').val(selectedEvent.title);
+          $('#txtAddStart').val(selectedEvent.start.format('MMMM DD, YYYY HH:mm A'));
+          $('#txtAddEnd').val(selectedEvent.end != null ? selectedEvent.end.format('MMMM DD, YYYY HH:mm A') : '');
+          $('#txtAddPatientName').val(selectedEvent.patientName);
+          $('#txtAddDescription').val(selectedEvent.description);
+        }
+
+        var doctorId = "@Model.Id";
+        $("#patientList").empty();
+        $.ajax({
+          type: 'GET',
+          url: '/api/Patients/',
+          datatype: 'json',
+          success: function (data) {
+            $.each(data, function (i, v) {
+              if (v.DoctorId == doctorId) {
+                $("#patientList").append($("<option>").attr('value', v.Id).text(v.Name));
+              }
+            })
+          },
+          error: function (error) {
+            alert('failed');
+          }
+        })
+
+        $('#myModalAdd').modal();
+      }
+
+      function openEditForm() {
+        if (selectedEvent != null) {
+          $('#hdEventID').val(selectedEvent.id);
+          $('#txtSubject').val(selectedEvent.title);
+          $('#txtStart').val(selectedEvent.start.format('MMMM DD, YYYY HH:mm A'));
+          $('#txtEnd').val(selectedEvent.end != null ? selectedEvent.end.format('MMMM DD, YYYY HH:mm A') : '');
+          $('#txtPatientId').val(selectedEvent.patientId);
+          $('#txtPatientName').val(selectedEvent.patientName);
+          $('#txtDescription').val(selectedEvent.description);
+        }
+        $('#calendarModal').modal('hide');
+        $('#myModalSave').modal();
+      }
+
+      function GenerateCalender() {
+        $('#calender').fullCalendar('destroy');
+        $('#calendar').fullCalendar({
+              header: {
+                  left: 'prev,next today',
+                  center: 'title',
+                right: 'month,agendaWeek,agendaDay,agenda'
+                },
+                firstDay: 1, //The day that each week begins (Monday=1)
+                slotMinutes: 60,
+                editable: true,
+                eventLimit: true,
+                events: '@Url.Action("GetCalendarEvents", "Calendar", new { Id = Model.Id })',
+                eventClick: function (event, jsEvent, view) {
+                  selectedEvent = event;
+                  var odate = event.start.format();
+                  var startDate = formatDate(odate);
+                  odate = event.end.format();
+                  var endDate = formatDate(odate);
+                  $('#modalTitle').html(event.title);
+                  $('#startDate').html(startDate);
+                  $('#endDate').html(endDate);
+                  $('#eventInfo').html(event.description);
+                  $('#patientId').html(event.patientId);
+                  $('#patientName').html(event.patientName);
+                  $('#calendarModal').modal();
+                },
+                timezone: 'local',
+                eventDrop: function (event) {
+                  var data = {
+                    id: event.id,
+                    title: event.title,
+                    start: event.start.format(),
+                    end: event.end != null ? event.end.format() : null,
+                    description: event.description,
+                    patientId: event.patientId
+                  };
+                  SaveEvent(data);
+                },
+                eventResize: function (event, delta, revertFunc, jsEvent, ui, view) {
+                  var data = {
+                    id: event.id,
+                    title: event.title,
+                    start: event.start.format(),
+                    end: event.end != null ? event.end.format() : null,
+                    description: event.description,
+                    patientId: event.patientId
+                  };
+                  SaveEvent(data);
+                },
+                selectable: true,
+                select: function (start, end) {
+                  selectedEvent = {
+                    title: '',
+                    description: '',
+                    start: start,
+                    end: end
+                  };
+                  openAddForm();
+                  $('#calendar').fullCalendar('unselect');
+                }
+            });
+    }
+    });
+  </script>
+}
+
+<datalist id="patientList"></datalist>
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel='stylesheet' type='text/css' href='~/Content/fullcalendar.css'>
+  <link rel='stylesheet' type='text/css' href='~/Content/sidenav.css'>
+  <link rel='stylesheet' type='text/css' href='~/Content/bootstrap-datetimepicker.min.css'>
+</head>
+
+<div  class="sidenav">
+  @Html.ActionLink("Schedule", "Index", "Doctor", routeValues: new { id = Model.Id }, htmlAttributes: null)
+  @Html.ActionLink("My Patients", "MyPatients", "Patient", routeValues: new { id = Model.Id }, htmlAttributes: null)
+  @Html.ActionLink("Register Patient", "Index", "Patient", routeValues: new { id = Model.Id }, htmlAttributes: null)
+</div>
+
+<body class="main">
+  <p></p>
+  <div class="container">
+    <div id='calendar'></div>
+  </div>
+</body>
+
+<div id="calendarModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span> <span class="sr-only">close</span></button>
+        <h4 id="modalTitle" class="modal-title"></h4>
+      </div>
+
+      <div class="modal-body">
+        <label>Patient Id:</label> <span id="patientId"></span><br>
+        <label>Patient Name:</label> <span id="patientName"></span><br>
+        <label>Start:</label> <span id="startDate"></span><br>
+        <label>End:&nbsp;&nbsp;</label><span id="endDate"></span><br><br>
+        <label>Description:</label><br><p id="eventInfo"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="btnEdit" class="btn btn-default pull-right" style="margin-right:5px;">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </button>
+        <button id="btnDelete" class="btn btn-default pull-right">
+          <span class="glyphicon glyphicon-remove"></span> Remove
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="myModalSave" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Save Event</h4>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <input type="hidden" id="hdEventID" />
+
+          <div class="form-group">
+            <label>Patient Id:</label> <input type="text" readonly="readonly" id="txtPatientId" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>Patient Name:</label> <input type="text" readonly="readonly" id="txtPatientName" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="txtSubject" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>Start</label>
+            <div class="input-group date" id="dtp1">
+              <input type="text" id="txtStart" class="form-control" />
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>End</label>
+            <div class="input-group date" id="dtp2">
+              <input type="text" id="txtEnd" class="form-control" />
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="txtDescription" rows="3" class="form-control"></textarea>
+          </div>
+
+          <button type="button" id="btnSave" class="btn btn-success">Save</button>
+
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="myModalAdd" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Save Event</h4>
+      </div>
+      <div class="modal-body">
+        <form>
+          <input type="hidden" id="AddEventID" />
+          <div class="form-group">
+            <label>Patient Name:</label> <input list="patientList" type="text" id="txtAddPatientName" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="txtAddSubject" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Start</label>
+            <div class="input-group date" id="dtp3">
+              <input type="text" id="txtAddStart" class="form-control" />
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>End</label>
+            <div class="input-group date" id="dtp4">
+              <input type="text" id="txtAddEnd" class="form-control" />
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="txtAddDescription" rows="3" class="form-control"></textarea>
+          </div>
+          <button type="button" id="btnAdd" class="btn btn-success">Add</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

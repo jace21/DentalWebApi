@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="ProductionDatabaseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Dentist">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Name" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Birthday" Type="date" Nullable="false" />
+          <Property Name="Address" Type="varchar" MaxLength="300" Nullable="false" />
+          <Property Name="City" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="StateCode" Type="nchar" MaxLength="2" Nullable="false" />
+          <Property Name="ZipCode" Type="varchar" MaxLength="11" Nullable="false" />
+          <Property Name="Profile" Type="varbinary(max)" />
+        </EntityType>
+        <EntityType Name="Patient">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Name" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Birthday" Type="date" Nullable="false" />
+          <Property Name="Address" Type="varchar" MaxLength="300" Nullable="false" />
+          <Property Name="City" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="StateCode" Type="nchar" MaxLength="2" Nullable="false" />
+          <Property Name="ZipCode" Type="varchar" MaxLength="11" Nullable="false" />
+          <Property Name="Profile" Type="varbinary(max)" />
+          <Property Name="DoctorId" Type="uniqueidentifier" />
+        </EntityType>
+        <EntityType Name="Schedule">
+          <Key>
+            <PropertyRef Name="EventId" />
+            <PropertyRef Name="DoctorId" />
+          </Key>
+          <Property Name="Subject" Type="varchar" MaxLength="300" />
+          <Property Name="EventId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="DoctorId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PatientId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="StartDate" Type="datetime" Nullable="false" />
+          <Property Name="EndDate" Type="datetime" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="300" />
+        </EntityType>
+        <Association Name="FK__Patient__DoctorI__3E52440B">
+          <End Role="Dentist" Type="Self.Dentist" Multiplicity="0..1" />
+          <End Role="Patient" Type="Self.Patient" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dentist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Patient">
+              <PropertyRef Name="DoctorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Schedule__Doctor__440B1D61">
+          <End Role="Dentist" Type="Self.Dentist" Multiplicity="1" />
+          <End Role="Schedule" Type="Self.Schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dentist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Schedule">
+              <PropertyRef Name="DoctorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Schedule__Patien__44FF419A">
+          <End Role="Patient" Type="Self.Patient" Multiplicity="1" />
+          <End Role="Schedule" Type="Self.Schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Patient">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Schedule">
+              <PropertyRef Name="PatientId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ProductionDatabaseModelStoreContainer">
+          <EntitySet Name="Dentist" EntityType="Self.Dentist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Patient" EntityType="Self.Patient" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Schedule" EntityType="Self.Schedule" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Patient__DoctorI__3E52440B" Association="Self.FK__Patient__DoctorI__3E52440B">
+            <End Role="Dentist" EntitySet="Dentist" />
+            <End Role="Patient" EntitySet="Patient" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Schedule__Doctor__440B1D61" Association="Self.FK__Schedule__Doctor__440B1D61">
+            <End Role="Dentist" EntitySet="Dentist" />
+            <End Role="Schedule" EntitySet="Schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Schedule__Patien__44FF419A" Association="Self.FK__Schedule__Patien__44FF419A">
+            <End Role="Patient" EntitySet="Patient" />
+            <End Role="Schedule" EntitySet="Schedule" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ProductionDatabaseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Dentist">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Birthday" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Address" Type="String" MaxLength="300" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="City" Type="String" MaxLength="150" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="StateCode" Type="String" MaxLength="2" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="ZipCode" Type="String" MaxLength="11" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Profile" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <NavigationProperty Name="Patients" Relationship="Self.FK__Patient__DoctorI__3E52440B" FromRole="Dentist" ToRole="Patient" />
+          <NavigationProperty Name="Schedules" Relationship="Self.FK__Schedule__Doctor__440B1D61" FromRole="Dentist" ToRole="Schedule" />
+        </EntityType>
+        <EntityType Name="Patient">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Birthday" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Address" Type="String" MaxLength="300" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="City" Type="String" MaxLength="150" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="StateCode" Type="String" MaxLength="2" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="ZipCode" Type="String" MaxLength="11" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Profile" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="DoctorId" Type="Guid" />
+          <NavigationProperty Name="Dentist" Relationship="Self.FK__Patient__DoctorI__3E52440B" FromRole="Patient" ToRole="Dentist" />
+          <NavigationProperty Name="Schedules" Relationship="Self.FK__Schedule__Patien__44FF419A" FromRole="Patient" ToRole="Schedule" />
+        </EntityType>
+        <EntityType Name="Schedule">
+          <Key>
+            <PropertyRef Name="EventId" />
+            <PropertyRef Name="DoctorId" />
+          </Key>
+          <Property Name="Subject" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="EventId" Type="Guid" Nullable="false" />
+          <Property Name="DoctorId" Type="Guid" Nullable="false" />
+          <Property Name="PatientId" Type="Guid" Nullable="false" />
+          <Property Name="StartDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="EndDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Description" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Dentist" Relationship="Self.FK__Schedule__Doctor__440B1D61" FromRole="Schedule" ToRole="Dentist" />
+          <NavigationProperty Name="Patient" Relationship="Self.FK__Schedule__Patien__44FF419A" FromRole="Schedule" ToRole="Patient" />
+        </EntityType>
+        <Association Name="FK__Patient__DoctorI__3E52440B">
+          <End Role="Dentist" Type="Self.Dentist" Multiplicity="0..1" />
+          <End Role="Patient" Type="Self.Patient" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dentist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Patient">
+              <PropertyRef Name="DoctorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Schedule__Doctor__440B1D61">
+          <End Role="Dentist" Type="Self.Dentist" Multiplicity="1" />
+          <End Role="Schedule" Type="Self.Schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Dentist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Schedule">
+              <PropertyRef Name="DoctorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Schedule__Patien__44FF419A">
+          <End Role="Patient" Type="Self.Patient" Multiplicity="1" />
+          <End Role="Schedule" Type="Self.Schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Patient">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Schedule">
+              <PropertyRef Name="PatientId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ProductionDatabaseEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Dentists" EntityType="Self.Dentist" />
+          <EntitySet Name="Patients" EntityType="Self.Patient" />
+          <EntitySet Name="Schedules" EntityType="Self.Schedule" />
+          <AssociationSet Name="FK__Patient__DoctorI__3E52440B" Association="Self.FK__Patient__DoctorI__3E52440B">
+            <End Role="Dentist" EntitySet="Dentists" />
+            <End Role="Patient" EntitySet="Patients" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Schedule__Doctor__440B1D61" Association="Self.FK__Schedule__Doctor__440B1D61">
+            <End Role="Dentist" EntitySet="Dentists" />
+            <End Role="Schedule" EntitySet="Schedules" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Schedule__Patien__44FF419A" Association="Self.FK__Schedule__Patien__44FF419A">
+            <End Role="Patient" EntitySet="Patients" />
+            <End Role="Schedule" EntitySet="Schedules" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ProductionDatabaseModelStoreContainer" CdmEntityContainer="ProductionDatabaseEntities">
+          <EntitySetMapping Name="Dentists">
+            <EntityTypeMapping TypeName="ProductionDatabaseModel.Dentist">
+              <MappingFragment StoreEntitySet="Dentist">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Birthday" ColumnName="Birthday" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="StateCode" ColumnName="StateCode" />
+                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
+                <ScalarProperty Name="Profile" ColumnName="Profile" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Patients">
+            <EntityTypeMapping TypeName="ProductionDatabaseModel.Patient">
+              <MappingFragment StoreEntitySet="Patient">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Birthday" ColumnName="Birthday" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="StateCode" ColumnName="StateCode" />
+                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
+                <ScalarProperty Name="Profile" ColumnName="Profile" />
+                <ScalarProperty Name="DoctorId" ColumnName="DoctorId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Schedules">
+            <EntityTypeMapping TypeName="ProductionDatabaseModel.Schedule">
+              <MappingFragment StoreEntitySet="Schedule">
+                <ScalarProperty Name="Subject" ColumnName="Subject" />
+                <ScalarProperty Name="EventId" ColumnName="EventId" />
+                <ScalarProperty Name="DoctorId" ColumnName="DoctorId" />
+                <ScalarProperty Name="PatientId" ColumnName="PatientId" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="ProductionDatabaseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Dentist">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Name" Type="varchar" MaxLength="200" Nullable="false" />
+    <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="Birthday" Type="date" Nullable="false" />
+    <Property Name="Address" Type="varchar" MaxLength="300" Nullable="false" />
+    <Property Name="City" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="StateCode" Type="nchar" MaxLength="2" Nullable="false" />
+    <Property Name="ZipCode" Type="varchar" MaxLength="11" Nullable="false" />
+    <Property Name="Profile" Type="varbinary(max)" />
+  </EntityType>
+  <EntityType Name="Patient">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Name" Type="varchar" MaxLength="200" Nullable="false" />
+    <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="Birthday" Type="date" Nullable="false" />
+    <Property Name="Address" Type="varchar" MaxLength="300" Nullable="false" />
+    <Property Name="City" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="StateCode" Type="nchar" MaxLength="2" Nullable="false" />
+    <Property Name="ZipCode" Type="varchar" MaxLength="11" Nullable="false" />
+    <Property Name="Profile" Type="varbinary(max)" />
+    <Property Name="DoctorId" Type="uniqueidentifier" />
+  </EntityType>
+  <EntityType Name="Schedule">
+    <Key>
+      <PropertyRef Name="EventId" />
+      <PropertyRef Name="DoctorId" />
+    </Key>
+    <Property Name="Subject" Type="varchar" MaxLength="300" />
+    <Property Name="EventId" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="DoctorId" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="PatientId" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="StartDate" Type="datetime" Nullable="false" />
+    <Property Name="EndDate" Type="datetime" Nullable="false" />
+    <Property Name="Description" Type="varchar" MaxLength="300" />
+  </EntityType>
+  <Association Name="FK__Patient__DoctorI__3E52440B">
+    <End Role="Dentist" Type="Self.Dentist" Multiplicity="0..1" />
+    <End Role="Patient" Type="Self.Patient" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Dentist">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Patient">
+        <PropertyRef Name="DoctorId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__Schedule__Doctor__440B1D61">
+    <End Role="Dentist" Type="Self.Dentist" Multiplicity="1" />
+    <End Role="Schedule" Type="Self.Schedule" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Dentist">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Schedule">
+        <PropertyRef Name="DoctorId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__Schedule__Patien__44FF419A">
+    <End Role="Patient" Type="Self.Patient" Multiplicity="1" />
+    <End Role="Schedule" Type="Self.Schedule" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Patient">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Schedule">
+        <PropertyRef Name="PatientId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="ProductionDatabaseModelStoreContainer">
+    <EntitySet Name="Dentist" EntityType="Self.Dentist" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Patient" EntityType="Self.Patient" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Schedule" EntityType="Self.Schedule" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK__Patient__DoctorI__3E52440B" Association="Self.FK__Patient__DoctorI__3E52440B">
+      <End Role="Dentist" EntitySet="Dentist" />
+      <End Role="Patient" EntitySet="Patient" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Schedule__Doctor__440B1D61" Association="Self.FK__Schedule__Doctor__440B1D61">
+      <End Role="Dentist" EntitySet="Dentist" />
+      <End Role="Schedule" EntitySet="Schedule" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Schedule__Patien__44FF419A" Association="Self.FK__Schedule__Patien__44FF419A">
+      <End Role="Patient" EntitySet="Patient" />
+      <End Role="Schedule" EntitySet="Schedule" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>
